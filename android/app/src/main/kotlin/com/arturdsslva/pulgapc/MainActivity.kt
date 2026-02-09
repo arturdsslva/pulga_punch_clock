@@ -1,4 +1,4 @@
-package com.example.pulga_punch_clock
+package com.arturdsslva.pulgapc
 
 import io.flutter.embedding.android.FlutterActivity
 

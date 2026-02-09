@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pulga_punch_clock"
+    namespace = "com.arturdsslva.pulgapc"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.pulga_punch_clock"
+        applicationId = "com.arturdsslva.pulgapc"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
