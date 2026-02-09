@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-
-import 'result.dart';
+import 'package:pulga_punch_clock/utils/result.dart';
 
 typedef CommandAction0<T> = Future<Result<T>> Function();
 typedef CommandAction1<T, A> = Future<Result<T>> Function(A);
