@@ -56,6 +56,16 @@ void main() {
 
       expect(command.error, true);
       expect(command.result, isA<Error>());
+      expect(command.result!.asError.error.toString(), 'Exception: ERROR');
+      expect(command.result!.toString(), 'Result<int>.error(Exception: ERROR)');
+    });
+
+    test('should return result formmated in String on `toString`', () async {
+      final command = Command0<int>(() => Future.value(Result.ok(42)));
+
+      await command.execute();
+
+      expect(command.result.toString(), 'Result<int>.ok(42)');
     });
   });
 
@@ -80,6 +90,21 @@ void main() {
 
       expect(command.completed, isTrue);
       expect(command.result!.asOk.value, isTrue);
+    });
+
+    test('should clear result', () async {
+      final command = Command1<bool, bool>(
+        (a) => Future.value(Result.ok(true)),
+      );
+
+      await command.execute(true);
+
+      expect(command.completed, isTrue);
+      expect(command.result!.asOk.value, isTrue);
+
+      command.clearResult();
+
+      expect(command.result, null);
     });
   });
 }
