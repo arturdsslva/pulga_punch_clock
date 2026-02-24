@@ -28,6 +28,14 @@ jobs:
           }
           EOF
 
+      - name: Restaura google-services.json
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > android/app/google-services.json
+
+      - name: Restaura firebase_options.dart
+        run: |
+          echo "${{ secrets.FIREBASE_OPTIONS_BASE64 }}" | base64 --decode > lib/firebase_options.dart
+
       - name: Build apk
         run: flutter build apk --release
 
