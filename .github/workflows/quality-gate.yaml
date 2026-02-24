@@ -1,0 +1,45 @@
+name: Quality Gate
+
+on:
+  pull_request:
+    branches: [develop, master, production]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.38.9"
+          channel: "stable"
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            build/
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+
+      - run: flutter pub get
+
+      - run: flutter analyze
+
+      - run: flutter test --coverage
+
+      - run: sudo apt-get update && sudo apt-get install -y lcov
+
+      - name: Coverage Gate 75%
+        run: |
+          COVERAGE=$(lcov --summary coverage/lcov.info | grep lines | awk '{print $2}' | sed 's/%//')
+          REQUIRED=75
+          VALUE=${COVERAGE%.*}
+
+          echo "Coverage: $VALUE%"
+
+          if [ "$VALUE" -lt "$REQUIRED" ]; then
+            echo "Coverage below ${REQUIRED}%"
+            exit 1
+          fi
