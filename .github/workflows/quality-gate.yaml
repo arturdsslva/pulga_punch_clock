@@ -23,6 +23,41 @@ jobs:
             build/
           key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
 
+      - name: Define environment
+        id: env
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+            echo "env=dev" >> $GITHUB_OUTPUT
+            echo "api=${{ secrets.API_BASE_URL_DEV }}" >> $     GITHUB_OUTPUT
+            echo "group=devs" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
+            echo "env=hml" >> $GITHUB_OUTPUT
+            echo "api=${{ secrets.API_BASE_URL_HML }}" >> $GITHUB_OUTPUT
+            echo "group=testers" >> $GITHUB_OUTPUT
+          else
+            echo "env=prod" >> $GITHUB_OUTPUT
+            echo "api=${{ secrets.API_BASE_URL_PROD }}" >> $GITHUB_OUTPUT
+            echo "group=prod-users" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create env.json
+        run: |
+          cat <<EOF > env.json
+          {
+            "ENV": "${{ steps.env.outputs.env }}",
+            "API_BASE_URL": "${{ steps.env.outputs.api }}",
+            "ENABLE_LOGS": false
+          }
+          EOF
+
+      - name: Restore google-services.json
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > android/app/google-services.json
+
+      - name: Restore firebase_options.dart
+        run: |
+          echo "${{ secrets.FIREBASE_OPTIONS_BASE64 }}" | base64 --decode > lib/firebase_options.dart
+
       - run: flutter pub get
 
       - run: flutter analyze
