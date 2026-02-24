@@ -1,3 +1,4 @@
+# FRESHUP
 clean:
 	@echo "Cleaning..."
 	flutter clean
@@ -6,12 +7,16 @@ clean:
 	flutter pub get
 	@echo "Done!"
 
+
+# BUILD
 build-dev: clean
 	@echo "Building for Development..."
 	flutter build apk \
 		--dart-define-from-file=lib/config/envs/dev.json
 	@echo "Build for Development completed!"
 
+
+# TESTS
 run-test:
 	@echo "Running tests..."
 	flutter test --coverage
