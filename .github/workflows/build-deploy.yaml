@@ -1,8 +1,7 @@
-name: Deploy to Firebase App Distribution
-
+name: Build and Deploy
 on:
   push:
-    branches: [develop]
+    branches: [develop, master, production]
 
 jobs:
   build-android:
@@ -10,13 +9,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.38.9"
           channel: "stable"
 
-      - name: Cache Flutter
-        uses: actions/cache@v4
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.pub-cache
@@ -26,13 +25,30 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
+      - name: Define environment
+        id: env
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+            echo "env=dev" >> $GITHUB_OUTPUT
+            echo "api=${{ secrets.API_BASE_URL_DEV }}" >> $     GITHUB_OUTPUT
+            echo "group=devs" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
+            echo "env=hml" >> $GITHUB_OUTPUT
+            echo "api=${{ secrets.API_BASE_URL_HML }}" >> $GITHUB_OUTPUT
+            echo "group=testers" >> $GITHUB_OUTPUT
+          else
+            echo "env=prod" >> $GITHUB_OUTPUT
+            echo "api=${{ secrets.API_BASE_URL_PROD }}" >> $GITHUB_OUTPUT
+            echo "group=prod-users" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create env.json
         run: |
           cat <<EOF > env.json
           {
-              "ENV": "hml",
-              "API_BASE_URL": "${{ secrets.API_BASE_URL_HML }}",
-              "ENABLE_LOGS": true
+            "ENV": "${{ steps.env.outputs.env }}",
+            "API_BASE_URL": "${{ steps.env.outputs.api }}",
+            "ENABLE_LOGS": false
           }
           EOF
 
