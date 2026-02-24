@@ -1,0 +1,72 @@
+name: Build and Deploy
+on:
+  push:
+    branches: [develop, master, production]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.38.9"
+          channel: "stable"
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            build/
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Define environment
+        id: env
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/develop" ]]; then
+            echo "env=dev" >> $GITHUB_OUTPUT
+            echo "api=${{ secrets.API_BASE_URL_DEV }}" >> $     GITHUB_OUTPUT
+            echo "group=devs" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
+            echo "env=hml" >> $GITHUB_OUTPUT
+            echo "api=${{ secrets.API_BASE_URL_HML }}" >> $GITHUB_OUTPUT
+            echo "group=testers" >> $GITHUB_OUTPUT
+          else
+            echo "env=prod" >> $GITHUB_OUTPUT
+            echo "api=${{ secrets.API_BASE_URL_PROD }}" >> $GITHUB_OUTPUT
+            echo "group=prod-users" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create env.json
+        run: |
+          cat <<EOF > env.json
+          {
+            "ENV": "${{ steps.env.outputs.env }}",
+            "API_BASE_URL": "${{ steps.env.outputs.api }}",
+            "ENABLE_LOGS": false
+          }
+          EOF
+
+      - name: Restore google-services.json
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}" | base64 --decode > android/app/google-services.json
+
+      - name: Restore firebase_options.dart
+        run: |
+          echo "${{ secrets.FIREBASE_OPTIONS_BASE64 }}" | base64 --decode > lib/firebase_options.dart
+
+      - name: Build apk
+        run: flutter build apk --release --dart-define-from-file=env.json
+
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
+          token: ${{ secrets.FIREBASE_TOKEN }}
+          groups: testers
+          file: build/app/outputs/flutter-apk/app-release.apk
