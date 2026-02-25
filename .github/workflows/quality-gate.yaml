@@ -3,6 +3,8 @@ name: Quality Gate
 on:
   pull_request:
     branches: [develop, master, production]
+  push:
+    branches: [develop, master, production]
 
 jobs:
   tests:
