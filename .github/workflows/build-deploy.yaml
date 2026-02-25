@@ -4,8 +4,6 @@ on:
     workflows: ["Quality Gate"]
     types:
       - completed
-  # push:
-  #   branches: [develop, master, production]
 
 jobs:
   build-android:
