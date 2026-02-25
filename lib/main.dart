@@ -38,7 +38,7 @@ class TestHome extends StatelessWidget {
       appBar: AppBar(title: Text('API: ${config.apiBaseUrl}')),
       body: Center(
         child: Text(
-          'Enviroment: ${config.enviroment.name}',
+          'Env: ${config.enviroment.name}',
           style: const TextStyle(fontSize: 18),
         ),
       ),
