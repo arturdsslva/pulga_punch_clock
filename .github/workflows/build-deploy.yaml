@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-android:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && ( github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'master' || github.event.workflow_run.head_branch == 'production' )}}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && ( github.event.workflow_run.head_branch == 'develop' || github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'production' )}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
             echo "env=dev" >> $GITHUB_OUTPUT
             echo "api=${{ secrets.API_BASE_URL_DEV }}" >> $     GITHUB_OUTPUT
             echo "group=devs" >> $GITHUB_OUTPUT
-          elif [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
+          elif [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "env=hml" >> $GITHUB_OUTPUT
             echo "api=${{ secrets.API_BASE_URL_HML }}" >> $GITHUB_OUTPUT
             echo "group=testers" >> $GITHUB_OUTPUT

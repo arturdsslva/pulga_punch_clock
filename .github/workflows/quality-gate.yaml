@@ -2,9 +2,9 @@ name: Quality Gate
 
 on:
   pull_request:
-    branches: [develop, master, production]
+    branches: [develop, main, production]
   push:
-    branches: [develop, master, production]
+    branches: [develop, main, production]
 
 jobs:
   tests:
@@ -32,7 +32,7 @@ jobs:
             echo "env=dev" >> $GITHUB_OUTPUT
             echo "api=${{ secrets.API_BASE_URL_DEV }}" >> $     GITHUB_OUTPUT
             echo "group=devs" >> $GITHUB_OUTPUT
-          elif [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
+          elif [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
             echo "env=hml" >> $GITHUB_OUTPUT
             echo "api=${{ secrets.API_BASE_URL_HML }}" >> $GITHUB_OUTPUT
             echo "group=testers" >> $GITHUB_OUTPUT
